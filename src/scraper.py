@@ -14,6 +14,7 @@ visited = set()
 
 
 class Scaper():
+
     def __init__(self, robotParserEnabled=True, restrictedDomain=True):
         self.robotParserEnabled = robotParserEnabled
         self.restrictedDomain = restrictedDomain
@@ -23,55 +24,65 @@ class Scaper():
 
     def visit(self, url):
         """ visits a given url and returns all the data """
+        # normalize urls
         if (url.startswith("http://") or url.startswith("https://")) is False:
             url = "http://" + url
-
         domain = urlparse.urlsplit(url)[1].split(':')[0]
         httpDomain = "http://" + domain
 
         try:
-            if self.robotParserEnabled:
-                rp = robotparser.RobotFileParser()
-                rp.set_url(urlparse.urljoin(httpDomain, "robots.txt"))
-                rp.read()
-                robotDict[httpDomain] = rp
+            self.robot_parse(httpDomain, url)
 
-                isParsable = rp.can_fetch("*", url)
-                if not isParsable:
-                    raise Exception("RobotParse")
+            # if a page has not been visited, check it is a valid page and then
+            # extract links and text
+            if url not in visited:
+                r = requests.get(url)
+                if r.status_code == 200:
+                    c = r.content
+                    soup = BeautifulSoup(c.decode('utf-8', 'ignore'), 'lxml')
+                    found_links = self.get_links(soup, domain)
+                r.close()
+                for link in found_links:
+                    if link not in visited:
+                        frontier.put(link)
 
-            found_links = self.get_links(url, domain)
-            for link in found_links:
-                if link not in visited:
-                    frontier.put(link)
-
+            # dump info to stout
             print("{} = [".format(url), end="")
             for link in found_links:
                 print("{}, ".format(link), end="")
             print("]\n")
         except:
+            # ignore the exception, as it indicatese a page which the robot
+            # does not have permission to parse
             pass
 
-    def get_links(self, url, domain):
-        if url not in visited:
-            r = requests.get(url)
-            if r.status_code == 200:
-                c = r.content
-                soup = BeautifulSoup(c.decode('utf-8', 'ignore'), 'lxml')
-                links = soup.find_all('a')
-                links = [s.get('href') for s in links]
-                links = [unicode(s) for s in links]
-                links = [s for s in links if re.search(domain, s)]
-                links = [s[:-1] if s.endswith('/') else s for s in links]
-                for ext in self.illegal:
-                    links = [s for s in links if ext not in s]
-                foundUrls = set(links)
-                r.close()
-                return foundUrls
-            else:
-                r.close()
+    def robot_parse(self, httpDomain, url):
+        # do not attempt to parse any page which the robots.txt forbids
+        if self.robotParserEnabled:
+            rp = robotparser.RobotFileParser()
+            rp.set_url(urlparse.urljoin(httpDomain, "robots.txt"))
+            rp.read()
+            robotDict[httpDomain] = rp
+
+            isParsable = rp.can_fetch("*", url)
+            if not isParsable:
+                raise Exception("RobotParse")
+
+    def get_links(self, soup, domain):
+        # extracts all the (domain) links on a visited page, returning them as
+        # a set
+        links = soup.find_all('a')
+        links = [s.get('href') for s in links]
+        links = [unicode(s) for s in links]
+        links = [s for s in links if re.search(domain, s)]
+        links = [s[:-1] if s.endswith('/') else s for s in links]
+        for ext in self.illegal:
+            links = [s for s in links if ext not in s]
+        foundUrls = set(links)
+        return foundUrls
 
     def crawl(self):
+        # main function for the the threads
         while True:
             url = frontier.get()
             self.visit(url)
@@ -81,11 +92,9 @@ class Scaper():
 if __name__ == '__main__':
     scaper = Scaper()
     frontier.put("ucl.ac.uk")
-    # scaper.visit("ucl.ac.uk")
+    # frontier.put("kindersleystudio.co.uk")
     for i in range(20):
         worker = Thread(target=scaper.crawl, args=())
         worker.setDaemon(True)
         worker.start()
     frontier.join()
-
-    # print("total visited = {}".format(len(visited)))

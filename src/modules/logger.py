@@ -3,31 +3,19 @@ import logging
 import os
 
 debugFlag = True
-# GREEN = '\033[92m'
-GREEN = '#68b782'
-PINK = '#68b782'
-BLUE = '#68b782'
-RED = '#68b782'
-YELLOW = '#68b782'
-NOCOLOUR = '#68b782'
-# PINK = '\033[95m'
-# BLUE = '\033[94m'
-# RED = '\033[91m'
-# YELLOW = '\033[93m'
-# NOCOLOR = '\033[0m'
-
-colour = [GREEN, PINK, BLUE, RED, YELLOW, NOCOLOUR]
 
 
 def init(path, logName):
     # basePath = os.path.dirname(sys.argv[0])
-    basePath = "/home/david/Programming/Python/
+    basePath = "/home/david/Programming/Python/guUCLe/"
     if basePath:
         basePath = basePath + "/"
     path = basePath + path
     if not os.path.exists(path):
         os.makedirs(path)
-    logging.basicConfig(filename=path+logName, format='%(asctime)s %(levelname)s:%(message)s', level=logging.DEBUG)
+    logging.basicConfig(filename=path+logName,
+                        format='%(asctime)s %(levelname)s:%(message)s',
+                        level=logging.DEBUG)
 
 
 def debugFlag(flag):
@@ -44,7 +32,8 @@ def log(level, message):
         func = inspect.currentframe().f_back.f_code
         fileName = ''.join(func.co_filename.split('/')[-1])
         line = func.co_firstlineno
-        message = "[" + str(func.co_name) + " - " + str(fileName) + ", " + str(line) + "] " + message
+        message = "[" + str(func.co_name) + " - " + \
+            str(fileName) + ", " + str(line) + "] " + message
 
     if level == logging.CRITICAL:
         message = "\n\n ************************\n" + message
@@ -54,9 +43,6 @@ def log(level, message):
         print(message)
     elif level is not logging.DEBUG:
         print(message)
-
-    for c in colour:
-        message = message.replace(c, "")
 
     logging.log(level, message)
 

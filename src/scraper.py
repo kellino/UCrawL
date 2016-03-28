@@ -29,10 +29,8 @@ class Scaper():
             url = "http://" + url
         domain = urlparse.urlsplit(url)[1].split(':')[0]
         httpDomain = "http://" + domain
-
         try:
             self.robot_parse(httpDomain, url)
-
             # if a page has not been visited, check it is a valid page and then
             # extract links and text
             if url not in visited:
@@ -41,19 +39,20 @@ class Scaper():
                     c = r.content
                     soup = BeautifulSoup(c.decode('utf-8', 'ignore'), 'lxml')
                     found_links = self.get_links(soup, domain)
-                r.close()
+                    self.get_text(soup, domain)
+                    r.close()
                 for link in found_links:
                     if link not in visited:
                         frontier.put(link)
-
-            # dump info to stout
-            print("{} = [".format(url), end="")
-            for link in found_links:
-                print("{}, ".format(link), end="")
-            print("]\n")
+                # dump info to stout
+                # print("{} = [".format(url), end="")
+                # for link in found_links:
+                    # print("{}, ".format(link), end="")
+                # print("]\n")
         except:
             # ignore the exception, as it indicatese a page which the robot
             # does not have permission to parse
+            # print("something's gone wrong")
             pass
 
     def robot_parse(self, httpDomain, url):
@@ -63,7 +62,6 @@ class Scaper():
             rp.set_url(urlparse.urljoin(httpDomain, "robots.txt"))
             rp.read()
             robotDict[httpDomain] = rp
-
             isParsable = rp.can_fetch("*", url)
             if not isParsable:
                 raise Exception("RobotParse")
@@ -81,6 +79,19 @@ class Scaper():
         foundUrls = set(links)
         return foundUrls
 
+    def visible(self, element):
+        if element.parent.name in ['style', 'script', '[document]', 'head', 'title']:
+            return False
+        elif re.match("<!--.*-->", element):
+            return False
+        return True
+
+    def get_text(self, soup, domain):
+        title = soup.find_all('title')
+        body = soup.findAll(text=True)
+        body = filter(self.visible, body)
+        print("{}\n{}".format(title, body))
+
     def crawl(self):
         # main function for the the threads
         while True:
@@ -93,7 +104,7 @@ if __name__ == '__main__':
     scaper = Scaper()
     frontier.put("ucl.ac.uk")
     # frontier.put("kindersleystudio.co.uk")
-    for i in range(20):
+    for i in range(4):
         worker = Thread(target=scaper.crawl, args=())
         worker.setDaemon(True)
         worker.start()

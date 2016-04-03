@@ -39,7 +39,7 @@ class Scaper():
                     c = r.content
                     soup = BeautifulSoup(c.decode('utf-8', 'ignore'), 'lxml')
                     found_links = self.get_links(soup, domain)
-                    self.get_text(soup)
+                    self.get_text(url, soup)
                     r.close()
                 for link in found_links:
                     if link not in visited:
@@ -82,7 +82,7 @@ class Scaper():
             print("{}, ".format(link), end="")
         print("]\n")
 
-    def get_text(self, soup):
+    def get_text(self, url, soup):
         # thanks to Hugh Bothwell and Bumpkin on StackOverflow for this!
         title = str(soup.title.string)
         for script in soup(["script", "style"]):
@@ -92,14 +92,20 @@ class Scaper():
         chunks = (phrase.strip() for line
                   in lines for phrase in line.split("  "))
         text = '\n'.join(chunk for chunk in chunks if chunk)
-        print(title.encode('utf-8'), text.encode('utf-8'), '\n')
+        print("visited: {}".format(len(visited)+1))
+        print(url)
+        print(title.encode('utf-8'))
+        print(text.encode('utf-8'))
+        print('\n')
 
     def crawl(self):
         # main function for the the threads
-        while True:
+        running = True
+        while running:
             url = frontier.get()
             self.visit(url)
             visited.add(url)
+            # when the frontier is empty, finish the procress
             frontier.task_done()
 
 if __name__ == '__main__':

@@ -6,16 +6,13 @@ import urlparse
 import robotparser
 import re
 import Queue
-from threading import Thread
-
-robotDict = {}
-frontier = Queue.Queue(0)
-visited = set()
 
 
-class Scaper():
-
+class Scraper():
     def __init__(self, robotParserEnabled=True, restrictedDomain=True):
+        self.robotDict = {}
+        self.frontier = Queue.Queue(0)
+        self.visited = set()
         self.robotParserEnabled = robotParserEnabled
         self.restrictedDomain = restrictedDomain
         self.illegal = [".mp4", ".mp3", ".flv", ".m4a",
@@ -33,7 +30,7 @@ class Scaper():
             self.robot_parse(httpDomain, url)
             # if a page has not been visited, check it is a valid page and then
             # extract links and text
-            if url not in visited:
+            if url not in self.visited:
                 r = requests.get(url)
                 if r.status_code == 200:
                     c = r.content
@@ -42,11 +39,11 @@ class Scaper():
                     self.get_text(url, soup)
                     r.close()
                 for link in found_links:
-                    if link not in visited:
+                    if link not in self.visited:
                         if link == url:
                             continue
                         else:
-                            frontier.put(link)
+                            self.frontier.put(link)
                 # self.print_all_links(url, found_links)
         except:
             pass  # robot parser says no
@@ -57,7 +54,7 @@ class Scaper():
             rp = robotparser.RobotFileParser()
             rp.set_url(urlparse.urljoin(httpDomain, "robots.txt"))
             rp.read()
-            robotDict[httpDomain] = rp
+            self.robotDict[httpDomain] = rp
             isParsable = rp.can_fetch("*", url)
             if not isParsable:
                 raise Exception("RobotParse")
@@ -92,7 +89,7 @@ class Scaper():
         chunks = (phrase.strip() for line
                   in lines for phrase in line.split("  "))
         text = '\n'.join(chunk for chunk in chunks if chunk)
-        print("visited: {}".format(len(visited)+1))
+        print("visited: {}".format(len(self.visited)+1))
         print(url)
         print(title.encode('utf-8'))
         print(text.encode('utf-8'))
@@ -100,19 +97,9 @@ class Scaper():
 
     def crawl(self):
         # main function for the the threads
-        running = True
-        while running:
-            url = frontier.get()
+        while True:
+            url = self.frontier.get()
             self.visit(url)
-            visited.add(url)
+            self.visited.add(url)
             # when the frontier is empty, finish the procress
-            frontier.task_done()
-
-if __name__ == '__main__':
-    scaper = Scaper()
-    frontier.put("ucl.ac.uk")
-    for i in range(4):
-        worker = Thread(target=scaper.crawl, args=())
-        worker.setDaemon(True)
-        worker.start()
-    frontier.join()
+            self.frontier.task_done()

@@ -81,7 +81,6 @@ class Scraper():
 
     def get_text(self, url, soup):
         # thanks to Hugh Bothwell and Bumpkin on StackOverflow for this!
-        title = str(soup.title.string)
         for script in soup(["script", "style"]):
             script.extract()
         text = soup.get_text()
@@ -91,7 +90,6 @@ class Scraper():
         text = '\n'.join(chunk for chunk in chunks if chunk)
         print("visited: {}".format(len(self.visited)+1))
         print(url)
-        print(title.encode('utf-8'))
         print(text.encode('utf-8'))
         print('\n')
 

@@ -5,12 +5,14 @@ from threading import Thread
 
 
 @click.command()
-@click.option('--domain', help='Domain to be crawled')
+@click.option('--seed', help='Domain to be crawled')
 @click.option('--threads', default=1, help='Number of daemon threads')
 @click.option('--limit', default=None, help='Maximum number of pages to visit')
-def run(threads, domain, limit):
+def run(threads, seed, limit):
+    """ UCrawL: a simple multi-threaded crawler/indexer designed
+        with the goal of scraping a single domain """
     scraper = Scraper()
-    scraper.frontier.put(domain)
+    scraper.frontier.put(seed)
     for i in range(threads):
         worker = Thread(target=scraper.crawl, args=())
         worker.setDaemon(True)

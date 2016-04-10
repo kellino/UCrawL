@@ -97,9 +97,9 @@ class Scraper():
 
     def crawl(self):
         # main function for the the threads
-        while True:
-            url = self.frontier.get()
-            self.visit(url)
-            self.visited.add(url)
-            # when the frontier is empty, finish the procress
-            self.frontier.task_done()
+        #while True:
+        url = self.frontier.get()
+        self.visit(url)
+        self.visited.add(url)
+        # when the frontier is empty, finish the procress
+        self.frontier.task_done()

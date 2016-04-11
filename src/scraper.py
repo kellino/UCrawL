@@ -1,5 +1,6 @@
 #!/usr/bin/env python2.7
 from __future__ import print_function
+import utils.logger as logger
 import requests
 from bs4 import BeautifulSoup
 import urlparse
@@ -21,6 +22,7 @@ class Scraper():
 
     def visit(self, url):
         """ visits a given url and returns all the data """
+        logger.info("crawling {}".format(url))
         # normalize urls
         if (url.startswith("http://") or url.startswith("https://")) is False:
             url = "http://" + url
@@ -46,7 +48,7 @@ class Scraper():
                             self.frontier.put(link)
                 # self.print_all_links(url, found_links)
         except:
-            pass  # robot parser says no
+            logger.warn("robot.txt forbids crawling {}".format(url))
 
     def robot_parse(self, httpDomain, url):
         # do not attempt to parse any page which the robots.txt forbids
@@ -62,14 +64,17 @@ class Scraper():
     def get_links(self, soup, domain):
         # extracts all the (domain) links on a visited page, returning them as
         # a set
-        links = soup.find_all('a')
-        links = [s.get('href') for s in links]
-        links = [unicode(s) for s in links]
-        links = [s for s in links if re.search(domain, s)]
-        links = [s[:-1] if s.endswith('/') else s for s in links]
-        for ext in self.illegal:
-            links = [s for s in links if ext not in s]
-        foundUrls = set(links)
+        try:
+            links = soup.find_all('a')
+            links = [s.get('href') for s in links]
+            links = [unicode(s) for s in links]
+            links = [s for s in links if re.search(domain, s)]
+            links = [s[:-1] if s.endswith('/') else s for s in links]
+            for ext in self.illegal:
+                links = [s for s in links if ext not in s]
+            foundUrls = set(links)
+        except:
+            pass
         return foundUrls
 
     def print_all_links(self, url, found_links):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 from __future__ import print_function
-import utils.logger as logger
+import utils.logger
 import requests
 from bs4 import BeautifulSoup
 import urlparse
@@ -9,8 +9,9 @@ import re
 import Queue
 
 
-class Scraper():
+class Scraper:
     def __init__(self, robotParserEnabled=True, restrictedDomain=True):
+        self.logger = utils.logger.load_logger()
         self.robotDict = {}
         self.frontier = Queue.Queue(0)
         self.visited = set()
@@ -22,8 +23,8 @@ class Scraper():
 
     def visit(self, url):
         """ visits a given url and returns all the data """
-        logger.info("crawling {}".format(url))
         # normalize urls
+        self.logger.info("visiting {}".format(url))
         if (url.startswith("http://") or url.startswith("https://")) is False:
             url = "http://" + url
         domain = urlparse.urlsplit(url)[1].split(':')[0]
@@ -48,7 +49,7 @@ class Scraper():
                             self.frontier.put(link)
                 # self.print_all_links(url, found_links)
         except:
-            logger.warn("robot.txt forbids crawling {}".format(url))
+            self.logger.info("robots.txt forbids crawling of {}".format(url))
 
     def robot_parse(self, httpDomain, url):
         # do not attempt to parse any page which the robots.txt forbids
@@ -74,7 +75,7 @@ class Scraper():
                 links = [s for s in links if ext not in s]
             foundUrls = set(links)
         except:
-            pass
+            self.logger.warn("soup unable to parse links from {}".format(domain))
         return foundUrls
 
     def print_all_links(self, url, found_links):

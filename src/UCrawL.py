@@ -1,46 +1,38 @@
 #!/usr/bin/env python2.7
 import click
-import sys
+import threading
+import time
 from scraper import Scraper
-from worker import Worker
 
 
 @click.command()
-@click.option('--seed', help='Domain to be crawled')
+@click.option('--seed', default=None, help='Domain to be crawled')
 @click.option('--threads', default=1, help='Number of daemon threads')
-@click.option('--limit', default=None, help='Maximum number of pages to visit')
+@click.option('--limit', default=1000, help='Maximum number of pages to visit')
 def run(threads, seed, limit):
-    sys.tracebacklimit = 0
-    """ UCrawL: a simple multi-threaded crawler/indexer designed
-        with the goal of scraping a single domain """
+    kill_signal = threading.Event()
     scraper = Scraper()
-    # put the seed in the frontier
-    scraper.frontier.put(seed)
+    if seed is None:
+        exit(1)
+    else:
+        scraper.frontier.put(seed)
+
     # create threads
-    thread_list = []
-    for i in range(threads):
-        worker = Worker(target=scraper.crawl, args=())
-        worker.setDaemon(True)
-        thread_list.append(worker)
-        worker.start()
-    # check for keyboard interrupt
-    while len(thread_list) > 0:
-        try:
-            # listen for keyboard interrupt
-            pass
-        except KeyboardInterrupt:
-            # clean up threads
-            for t in thread_list:
-                if t is not None:
-                    t.join(0.0)
-            print "Keyboard interrupt received"
-            # kill the threads
-            for worker in thread_list:
-                worker.kill_ordered = True
-            # close the frontier
-            scraper.frontier.join()
-            # close
-            exit()
+    def thread_gen(kill_signal):
+        t = threading.Thread(target=scraper.crawl, args=(kill_signal,))
+        t.setDaemon(True)
+        return t
+
+    thread_list = [thread_gen(kill_signal) for thread in range(threads)]
+    map(threading.Thread.start, thread_list)
+    time.sleep(1)
+
+    running = True
+    while running:
+        if len(scraper.visited) > limit:
+            kill_signal.set()
+            map(threading.Thread.join, thread_list)
+            running = False
 
 if __name__ == '__main__':
     run()

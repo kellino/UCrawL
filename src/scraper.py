@@ -99,12 +99,9 @@ class Scraper:
         print(text.encode('utf-8'))
         print('\n')
 
-    def crawl(self):
-        # main function for the threads
-        running = True
-        while running:
+    def crawl(self, stop_event):
+        while not stop_event.wait(1):
             url = self.frontier.get()
             self.visit(url)
             self.visited.add(url)
-            # when the frontier is empty, finish the process
-            self.frontier.task_done()
+            # self.frontier.task_done()

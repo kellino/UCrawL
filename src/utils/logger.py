@@ -1,13 +1,13 @@
+import yaml
 import logging
 import logging.config
 
-logging.config.fileConfig('/home/david/Programming/Python/UCrawL/src/utils/logging.conf')
-
-logger = logging.getLogger('UCrawL')
+path = '/home/david/Programming/Python/UCrawL/src/utils/conf.yaml'
 
 
-logger.debug("debug meesage")
-logger.info('info message')
-logger.warn('warn message')
-logger.error('error message')
-logger.critical('critical message')
+def load_logger():
+    with open(path, 'r') as stream:
+        D = yaml.load(stream)
+        logging.config.dictConfig(D)
+    logger = logging.getLogger('UCrawL')
+    return logger

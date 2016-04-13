@@ -1,1 +1,1 @@
-search engine for information retrieval
+domain specific crawler and indexer for IR at UCL

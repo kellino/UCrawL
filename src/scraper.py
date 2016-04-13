@@ -1,6 +1,5 @@
 #!/usr/bin/env python2.7
 from __future__ import print_function
-import utils.logger
 import requests
 from bs4 import BeautifulSoup
 import urlparse
@@ -104,4 +103,4 @@ class Scraper:
             url = self.frontier.get()
             self.visit(url)
             self.visited.add(url)
-            # self.frontier.task_done()
+            # time.sleep(polite)

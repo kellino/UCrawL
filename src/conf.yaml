@@ -17,7 +17,7 @@ handlers:
         filename: UCrawL.log
 loggers:
     c_logger:
-        level: WARN
+        level: DEBUG
         handlers: [console]
         propagate: no
     f_logger:

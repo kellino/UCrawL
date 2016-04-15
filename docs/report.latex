@@ -1,0 +1,49 @@
+\documentclass[14pf, a4paper]{report}
+\usepackage[english]{babel}
+\usepackage{palatino}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+%\usepackage{amsmath}
+\usepackage[hidelinks]{hyperref}
+\usepackage{graphicx}
+%\usepackage[rightcaption]{sidecap}
+%\usepackage{setspace}
+%\usepackage{dirtree}
+%\usepackage{xcolor}
+%\usepackage{appendix}
+%\usepackage{longtable}
+%\usepackage{listings}
+\graphicspath{{/home/david/Programming/Python/UCrawL/docs/}}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \includegraphics[width=6.26806in,height=1.85420in]{media/image1.jpeg}
+    \vfill
+    \scshape\LARGE guUCLe \\A search engine implementing Learning To Rank for the UCL website
+    \vfill
+    \scshape\LARGE Emmet Cassidy \textit{SN 900138} \\
+    \scshape\LARGE Jason Cheung \textit{SN 15081356} \\
+    \scshape\LARGE David Kelly \textit{SN 15097132}  \\
+    \scshape\LARGE Nicholas Read \textit{SN 15084428}
+
+    \vfill
+    \scshape\LARGE April 2016
+\end{titlepage}
+
+\tableofcontents
+
+\section{Crawling and Indexing}
+The initial scope of the project\footnote{Project 1 was selected from the coursework document,
+which called for the creation of a search engine for the UCL website, \url{http://www.ucl.ac.uk}}
+suggested the use of custom elements for the search engine. Rather than using an existing framework,
+such as \textbf{scrapy}\footnote{\url{scrapy.org}} the group decided to write a crawler without such
+aides, as a means to better understand the architecture and behaviour of a web crawler.
+
+The structure of \textit{UCrawL} was loosely inspired by the form of the \textit{Mercator}
+crawler \footnote{Introduction to Information Retrieval}
+
+
+
+\end{document}

@@ -34,7 +34,11 @@
 
 \tableofcontents
 
-\section{Crawling and Indexing}
+\section{Abstract}
+\label{cha:Abstract}
+
+\section{Search Engine Implementation}
+\subsection{Crawling and Indexing}
 The initial scope of the project\footnote{Project 1 was selected from the coursework document,
 which called for the creation of a search engine for the UCL website, \url{http://www.ucl.ac.uk}}
 suggested the use of custom elements for the search engine. Rather than using an existing framework,
@@ -42,7 +46,38 @@ such as \textbf{scrapy}\footnote{\url{scrapy.org}} the group decided to write a 
 aides, as a means to better understand the architecture and behaviour of a web crawler.
 
 The structure of \textit{UCrawL} was loosely inspired by the form of the \textit{Mercator}
-crawler \footnote{Introduction to Information Retrieval}
+crawler\footnote{Introduction to Information Retrieval, Manning et al, 2008}, utilizing a
+multi-threaded downloader and a url frontier, implemented as a queue. However, due to the exact
+nature of the project, a number of implementation differences were introduced. The crawler is
+designed to scrape data from \textbf{one} domain only, ignoring all external links. This is in
+accordance with the coursework description. This did present a small difficulty however, in that to
+generate sufficient data within a a resonable timeframe, politeness
+policy\footnote{\url{https://en.wikipedia.org/wiki/Web_crawler}} regarding repeated requests to the same server had to be largely ignored. Even running in a multi-threaded fashion, 
+DNS latency is still the dominating factor in the efficiency of the crawler: normally this factor
+could be diffused by walking (psuedo) randomly through the scraped urls thereby issuing requests to
+a large number of different servers, but this was not the case
+here due to the monothematic domain. In an attempt to respect some aspects of politeness policy, the
+crawler searches for and obeys the stipulations listed in the \textit{robots.txt}, located in the
+markup of many (but by no means all) webpages.\footnote{As an interesting aside, the \url{http://www.cs.ucl.ac.uk} 
+does not allow for crawling, an unfortunate situation given that it was listed as a possible target in the coursework paper.}
+
+The indexer was implemented twice in Python. While the initial version worked\footnote{the
+    sourcecode is still present in the github repo and in the assessment zip} reasonably well, it
+took rather longer to produce a result than was deemed acceptable. To index a collection of c.21000
+documents took on average 710 seconds. Further research revealed the existence of the excellent
+\textit{gensim}\footnote{\url{https://radimrehurek.com/gensim/}} library. Rewriting the code
+resulted in a file of much smaller size (and presumably of greater maintainability) and much greater
+running speed. Without stemming, indexing was complete in 38 seconds. With stemming\footnote{using
+    the ntlk library \url{http://www.nltk.org}, better maintained than the equivalent implementation
+    in gensim} resulted in only a slight speed penalty, but much more useful data.
+
+A small number of utility scripts were also written for ease of data manipulation. Due to the
+incremental, at times tentative, development process, there were occasional incompatabilities
+between old (but still valid) data, and newer formats. The scripts were designed to ease these
+issues. There are also a number of scripts to do elementary data analysis, including a
+human-readable list of term frequencies, and a list of bigram frequencies. These were instrumental
+in decided what terms, dominate in the collection, could be safely added to a custom stoplist.
+
 
 
 

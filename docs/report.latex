@@ -19,7 +19,7 @@
 \begin{document}
 
 \begin{titlepage} \centering \includegraphics[width=6.26806in,height=1.85420in]{media/image1.jpeg}
-    \vfill \scshape\LARGE guUCLe \\A search engine implementing Learning To Rank for the UCL website
+    \vfill \scshape\huge guUCLe \\A search engine implementing Learning To Rank for the UCL website
     \vfill \scshape\LARGE Emmet Cassidy \textit{SN 900138} \\ \scshape\LARGE Jason Cheung \textit{SN
         15081356} \\ \scshape\LARGE David Kelly \textit{SN 15097132}  \\ \scshape\LARGE Nicholas
     Read \textit{SN 15084428}
@@ -220,5 +220,182 @@ multiplying the old weight by its score divided by the average score of all atom
     W_{i} = W_{i} * \frac{score_{w}}{score_{ave}}
 \end{displaymath}
 
+This means that search methods which assign high rankings to relevant documents have their weighting adjusted upwards, 
+while search methods that assign lower ranks to relevant documents have their weighting adjusted downwards.
+
+\chapter{Results \& Evaluation}
+\section{Learning Process Results}
+
+\begin{figure} 
+    \begin{center} 
+        \includegraphics[scale=0.5]{media/image10.png} \end{center}
+    \caption{Learning results} 
+\end{figure} 
+To implement our learning-to-rank method a 30 step training period was undertaken as discussed above. User relevance feedback was used at 
+each step to adjust the weights of the five contributing atomic search models as can be seen in
+fig3.1.
+
+The weights of each model changed significantly over the training period. We can conclude from this that the PageRank and 
+Term Frequency models became effectively irrelevant to the aggregate retrieval model in the post-training system. By contrast 
+Cosine Similarity, Boolean-And and Term-Frequency:Inverted-Document-Frequency became roughly equal contributors to the model by the end of the training period.
+
+\section{NDCG Evaluation}
+\begin{figure} 
+    \begin{center} 
+        \includegraphics[scale=0.75]{media/image23.png} \end{center}
+    \caption{normalized discounted cumulative gain at rank 10} 
+\end{figure} 
+The plot in figure 3.2 allows for a simple comparison of the NDCG@10 values for each of the 20 test queries for the three main 
+IR systems; Google, UCL Search and our post-training system. As can be seen, Google outperforms the other two for the majority 
+of the queries, having the highest NDCG for 15 out of the 20 queries, with the post-training system highest on 3 occasions and UCL 
+search on 2. The plot also shows that the post-training system has higher NDCG@10 scores than the UCL search on 14 occasions with some 
+substantial differences within them, suggesting that, based on our test queries, the post-training system performs better than the UCL search.
+
+\begin{figure} 
+    \begin{center} 
+        \includegraphics[scale=0.75]{media/image21.png} \end{center}
+    \caption{ndcg before and after training} 
+\end{figure} 
+We also compared the NDCG@10 for the pre-training and post-training systems. As shown in Figure 3.3, it 
+can clearly be seen that the NDCG scores greatly increased due to the training and adjustment to the parameters that took place. 
+Although, it did not have the same effect for all queries, as it can be seen for query 5 and 18 that the pre-training system outperforms the post-training system.
+
+\section{Comparison of mean average NDCG at K}
+To collect the results, 20 predefined query topics (see query\_topics.txt) were submitted to each search engine model. 
+The top ten documents retrieved by each search engine were recorded and manual relevance judgements were made. These relevance 
+judgements and ranking scores were aggregated into a qrels and ranking file respectively for each search engine. These 
+files were then analysed using the NDCGdriver.java and NDCG.java classes to output NDCG at K scores for each query topic, 
+and mean average NDCG at K scores for each search engine. Given that we did not have relevance judgements for a large sample 
+of the document corpus we decided to normalise the DCG scores using maximum ideal DCG scores set to 4 for each query topic. 
+This artifact may have caused the slight negative gradient of the mean NDCG@K lines above, however this should not be significant 
+for comparison purposes. Another consideration that is relevant to comparisons is that the UCL and google domain specific search use the full corpus 
+of >1 million urls, while our search engine uses a subset of around 21,000 pages. Anecdotal comparison of the search results from 
+google and our post-training model indicates that our results have less diversity. As such the relevance scores could be slightly 
+inflated, given that multiple relevant yet very similar documents are retrieved. To improve this in the future we could introduce a 
+diversity discounting model such as Portfolio or MMR. 
+
+\begin{figure} 
+    \begin{center} 
+        \includegraphics[scale=0.75]{media/image12.png} \end{center}
+    \caption{average precision} 
+\end{figure} 
+Another evaluation measure that we used, was to work out the average precision at each k from 0 to 10 for each IR system. 
+Precision displays the percentage of relevant documents out of the retrieved documents at each step. 
+Figure 3.4 displays the flow of the average precision as the number of retrieved links increases.
+It shows that both the Google system and post-training system overall retrieve the highest proportion of relevant documents 
+throughout, with the top result for both always being relevant. It can also be seen that the pre-training system roughly retrieves 
+a relevant document only half of the time, with the UCL search engine being relevant at around 75\% of the time. 
+The TF-IDF system for the first three documents retrieves less relevant documents than our post-training system 
+but after that, the two retrieve a very similar proportion of  documents.
+
+\chapter{Benchmarking Performance}
+To evaluate the results above and benchmark the performance of our post-training IR system relative to 
+existing systems we describe a series of hypothesis tests below. In each test we assume that the effectiveness 
+score differences are meaningful and that the effectiveness score differences follow a normal distribution. 
+We use the NDCG@10 scores for each topic as our effectiveness metric.
+Each of our tests consists of a null and the alternative hypothesis. We perform various calculations to 
+obtain the mean score differences and calculate the standard deviation by using the corrected sample standard deviation formula:
+
+\begin{displaymath}
+    \sqrt{\frac{1}{n-1} \sum_{i=1}^{n}(x_{i} - \overline{x})^2}
+\end{displaymath}
+
+These values then allow the calculation of the t-statistic:
+\begin{displaymath}
+    \frac{\overline{x}}{\sigma_x} \sqrt{n}
+\end{displaymath}
+The degrees of freedom\footnote{\url{https://en.wikipedia.org/wiki/Student\%27s\_t-test}}
+is found using the formula \(\frac{n}{2} - 1\), since we are performing a paired sample t-test.
+n = 20 here, hence degree of freedom = 9.This all combined enables the use of t-tables to find the corresponding 
+p-value. If this p-value is less than the significance level, chosen here to be 5\% throughout.
+
+\section{Hypothesis Tests}
+The first test detailed below, tested whether the post-training system is significantly better than
+the pre-training system at a 5\% level:
+
+Null hypothesis \(H_{0} \): The post-training system is no better than the pre-training system.
+Alternative hypothesis \(H_{1}\): The post-training system is better than the pre-training system.
+
+Performing the calculations as described above, we obtain a t-value of 5.209611023 and therefore a p-value of 0.000278 
+which is <0.05, therefore the null hypothesis is rejected and we conclude that the post-training system performs better than the pre-training system.
+
+The second test we performed was whether the post-training system is significantly better than the UCL search:
+
+Null hypothesis \(H_{0}\): The post-training system is no better than the UCL search.
+Alternative hypothesis \(H_{1}\): The post-training system is better than the UCL search.
+
+We find a t-value of 2.359132971, and obtain the corresponding p-value of 0.021332 which is <0.05, 
+hence the result is significant at the 5\% level. Therefore we reject the null hypothesis 
+and conclude that the post-training system performs better than the UCL search engine.
+
+The third test we performed was whether the post-training system is significantly better than the Google search:
+
+Null hypothesis \(H_{0}\): The post-training system is no better than the Google search.
+Alternative hypothesis \(H_{1}\): The post-training system is better than the Google search.
+ 
+For a test at the 5\% level, in order for the result to be significant, the t value needs 
+to be larger than 1.833. But since the t-value obtained is less than this, namely -2.096, we accept the null hypothesis that the post-training system is no better than google.
+
+The final test performed was to establish whether the post-training system is significantly better than the TF-IDF system.
+
+Null hypothesis \(H_{0}\): The post-training system is no better than the TF-IDF system.
+Alternative hypothesis \(H_{1}\): The post-training system is better than the TF-IDF system.
+
+The t-value obtained is 1.219138 and the corresponding p-value is 0.126897, which is <0.05 hence the result 
+of the test is not significant and we accept the null hypothesis that the post-training system is no better than the TF-IDF system.
+
+\chapter{Conclusion}
+In addressing the problem of searching and retrieving results from the ucl.ac.uk domain we built a custom web 
+crawler, indexer and evaluation tools. To take our project beyond its original remit we also implemented 
+a learning-to-rank system and trained it with real user relevance feedback. To avoid learning bias we 
+ensured that the training query topics were different to the test query topics. 
+From the benchmarking tests conducted above it can be concluded that our post-training system retrieves 
+more relevant results than the UCL search engine at least across the 20 test query topics. However the results 
+are not significantly better than google or the TF-IDF search model in isolation. A caveat consider in these analyses 
+is that the document corpus in our search engine was only a 21000 subset or the >1 million urls in
+the \textit{ucl.ac.uk} 
+domain. Furthermore it has been anecdotally noted that while search results are highly relevant in our post-training model, they may lack diversity.
+Therefore we can conclude that our post-training search engine model performs well in comparison to the existing UCL search and we look forward to implementing it on the site in the coming months.
+
+\section{Future work}
+Anecdotally, we noticed that the results from our search engine did not have the same level of diversity as the google 
+domain search. To better maximise coverage and minimise redundancy we could introduce diversification models; for example, 
+maximal marginal relevance
+(MMR)\footnote{\url{http://www.cs.cmu.edu/~jgc/publication/The\_Use\_MMR\_Diversity\_Based\_LTMIR\_1998.pdf}}
+or Portfolio Theory\footnote{\url{http://dl.acm.org/citation.cfm?id=1571963}}.
+While learning to rank was outside the official scope of this project, we decided to investigate it as a logical 
+extension.To take this forward in the future more retrieval methods could be included in the algorithm. 
+BM25 was written too late to be included in this round of evaluation, however we suspect it is very similar 
+to the other retrieval methods and as such it might not give significant improvement. 
+Possible methods to include which could increase the diversity within the results include searching just URL text, 
+searching headers or searching anchor text. This would require changes to the indexing with a specific table relating directly to these areas.
+Late work analyzing bigrams present in the document collection also suggested a number of different
+approaches that might be incorporated into a more sophisticated search engine, including the
+statistical analysis of collocations for possible usage in information
+retrieval.\footnote{Foundations of Statistical Natural Language Processing, C. Manning and H.
+    Schütze, MIT Press, 1999}
+
+\begin{thebibliography}{1}
+
+  \bibitem{nltk} Bird, Steven, Edward Loper and Ewan Klein (2009), {\em Natural Language Processing
+      with Python.} O’Reilly Media Inc.
+
+  \bibitem{gensim} Radim {\v R}eh{\r u}{\v r}ek and Petr Sojka, {\em Software Framework for Topic
+      Modelling with Large Corpora} 2010
+
+  \bibitem{iret} Christopher D. Manning, Prabhakar Raghavan and Hinrich Schütze, 
+  {\em Introduction to Information Retrieval}, Cambridge University Press. 2008.
+
+  \bibitem{stats} Christopher Manning and Hinrich Schütze, 
+  {\em Foundations of Statistical Natural Language Processing}, MIT Press. Cambridge, MA: May 1999
+
+  \bibitem{mmr} Jaime Carbonell, Jade Goldstein {\em The Use of MMR, Diversity-Based Reranking for
+      Reordering and Producing Summaries}
+  \url{http://www.cs.cmu.edu/~jgc/publication/The\_Use\_MMR\_Diversity\_Based\_LTMIR\_1998.pdf}
+
+  \bibitem{port} Jun Wang, Jianhan Zhu {\em Portfolio Theory of Information Retrieval}
+  \url{http://dl.acm.org/citation.cfm?id=1571963}
+
+\end{thebibliography}
 
 \end{document}

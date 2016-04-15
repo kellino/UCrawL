@@ -1,49 +1,70 @@
 \documentclass[14pf, a4paper]{report}
-\usepackage[english]{babel}
-\usepackage{palatino}
-\usepackage[utf8]{inputenc}
+\usepackage[english]{babel} 
+\usepackage{palatino} 
+\usepackage[utf8]{inputenc} 
 \usepackage{geometry}
-%\usepackage{amsmath}
-\usepackage[hidelinks]{hyperref}
+\usepackage{amsmath}
+\usepackage[hidelinks]{hyperref} 
 \usepackage{graphicx}
-%\usepackage[rightcaption]{sidecap}
-%\usepackage{setspace}
-%\usepackage{dirtree}
-%\usepackage{xcolor}
-%\usepackage{appendix}
-%\usepackage{longtable}
-%\usepackage{listings}
+\usepackage{setspace}
+\usepackage{titlesec}
 \graphicspath{{/home/david/Programming/Python/UCrawL/docs/}}
+\titleformat{\chapter}[display]   
+{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}   
+\titlespacing*{\chapter}{0pt}{-50pt}{40pt}
+\setlength{\skip\footins}{7mm}
+\geometry{a4paper, total={170mm,257mm}, left=25mm, right=25mm, top=25mm, bottom=15mm}
+\renewcommand{\baselinestretch}{2.0}
 
 \begin{document}
 
-\begin{titlepage}
-    \centering
-    \includegraphics[width=6.26806in,height=1.85420in]{media/image1.jpeg}
-    \vfill
-    \scshape\LARGE guUCLe \\A search engine implementing Learning To Rank for the UCL website
-    \vfill
-    \scshape\LARGE Emmet Cassidy \textit{SN 900138} \\
-    \scshape\LARGE Jason Cheung \textit{SN 15081356} \\
-    \scshape\LARGE David Kelly \textit{SN 15097132}  \\
-    \scshape\LARGE Nicholas Read \textit{SN 15084428}
+\begin{titlepage} \centering \includegraphics[width=6.26806in,height=1.85420in]{media/image1.jpeg}
+    \vfill \scshape\LARGE guUCLe \\A search engine implementing Learning To Rank for the UCL website
+    \vfill \scshape\LARGE Emmet Cassidy \textit{SN 900138} \\ \scshape\LARGE Jason Cheung \textit{SN
+        15081356} \\ \scshape\LARGE David Kelly \textit{SN 15097132}  \\ \scshape\LARGE Nicholas
+    Read \textit{SN 15084428}
 
-    \vfill
-    \scshape\LARGE April 2016
-\end{titlepage}
+    \vfill \scshape\LARGE April 2016 \end{titlepage}
 
 \tableofcontents
 
-\section{Abstract}
-\label{cha:Abstract}
+\begin{abstract} The purpose of this project is to build a search engine that indexes and
+retrieves content from the \textit{ucl.ac.uk} domain. It was decided to restrict the content to text
+rather than images/video, and to restrict document crawling to a sufficiently large sample of the
+domain, rather than attempt to crawl all > 1 million
+urls\footnote{\url{https://www.funnelback.com/case-studies/university-college-london}} To evaluate
+the results, we were required to generate a suitable set of test query topics and relevance
+judgements and then devise a methodology for benchmarking the results of our search engine. In the
+sections that follow we outline our approach to these problems using a learning-to-rank methodology
+and detail the comparison to the UCL search engine and google domain-specific search engine.
+\end{abstract}
 
-\section{Search Engine Implementation}
-\subsection{Crawling and Indexing}
-The initial scope of the project\footnote{Project 1 was selected from the coursework document,
-which called for the creation of a search engine for the UCL website, \url{http://www.ucl.ac.uk}}
-suggested the use of custom elements for the search engine. Rather than using an existing framework,
-such as \textbf{scrapy}\footnote{\url{scrapy.org}} the group decided to write a crawler without such
-aides, as a means to better understand the architecture and behaviour of a web crawler.
+\chapter{Implementation}
+\section{Technology \& Approach} One of our objectives was to learn as much as we could about how
+the components of a search engine work; as such we took the approach of custom-building as much as
+possible without relying on open source libraries.  To achieve this we have compromised on some
+extended functionality in pursuit of having greater control and understanding of the search engine
+components. In addition to the basic search engine features we have implemented a learning-to-rank
+solution even though this was beyond the official scope of the project.
+ 
+The team members have strengths in different programming languages and different languages
+themselves have different strengths, therefore various subsystems were programmed in diverse
+languages where appropriate. The Pagerank and search engine was built in Java.  The crawler and
+indexer were built in Python, as detailed below.
+
+\begin{figure} 
+    \begin{center} 
+        \includegraphics[scale=0.5]{media/image20.png} \end{center}
+    \caption{The form of a basic search engine} 
+\end{figure} 
+\vfill
+
+\subsection{Crawling and Indexing} The initial scope of the project\footnote{Project 1 was selected
+    from the coursework document, which called for the creation of a search engine for the UCL
+    website, \url{http://www.ucl.ac.uk}} suggested the use of custom elements for the search engine.
+Rather than using an existing framework, such as \textbf{scrapy}\footnote{\url{scrapy.org}} the
+group decided to write a crawler without such aides, as a means to better understand the
+architecture and behaviour of a web crawler.
 
 The structure of \textit{UCrawL} was loosely inspired by the form of the \textit{Mercator}
 crawler\footnote{Introduction to Information Retrieval, Manning et al, 2008}, utilizing a
@@ -52,14 +73,16 @@ nature of the project, a number of implementation differences were introduced. T
 designed to scrape data from \textbf{one} domain only, ignoring all external links. This is in
 accordance with the coursework description. This did present a small difficulty however, in that to
 generate sufficient data within a a resonable timeframe, politeness
-policy\footnote{\url{https://en.wikipedia.org/wiki/Web_crawler}} regarding repeated requests to the same server had to be largely ignored. Even running in a multi-threaded fashion, 
-DNS latency is still the dominating factor in the efficiency of the crawler: normally this factor
-could be diffused by walking (psuedo) randomly through the scraped urls thereby issuing requests to
-a large number of different servers, but this was not the case
-here due to the monothematic domain. In an attempt to respect some aspects of politeness policy, the
-crawler searches for and obeys the stipulations listed in the \textit{robots.txt}, located in the
-markup of many (but by no means all) webpages.\footnote{As an interesting aside, the \url{http://www.cs.ucl.ac.uk} 
-does not allow for crawling, an unfortunate situation given that it was listed as a possible target in the coursework paper.}
+policy\footnote{\url{https://en.wikipedia.org/wiki/Web_crawler}} regarding repeated requests to the
+same server had to be largely ignored. Even running in a multi-threaded fashion, DNS latency is
+still the dominating factor in the efficiency of the crawler: normally this factor could be diffused
+by walking (psuedo) randomly through the scraped urls thereby issuing requests to a large number of
+different servers, but this was not the case here due to the monothematic domain. In an attempt to
+respect some aspects of politeness policy, the crawler searches for and obeys the stipulations
+listed in the \textit{robots.txt}, located in the markup of many (but by no means all)
+webpages.\footnote{As an interesting aside, the \url{http://www.cs.ucl.ac.uk} does not allow for
+    crawling, an unfortunate situation given that it was listed as a possible target in the
+    coursework paper.}
 
 The indexer was implemented twice in Python. While the initial version worked\footnote{the
     sourcecode is still present in the github repo and in the assessment zip} reasonably well, it
@@ -78,7 +101,124 @@ issues. There are also a number of scripts to do elementary data analysis, inclu
 human-readable list of term frequencies, and a list of bigram frequencies. These were instrumental
 in decided what terms, dominate in the collection, could be safely added to a custom stoplist.
 
+\subsection{The Search Engine} 
+The search engine comprises of three main parts: 
+\begin{itemize} 
+    \item The dataset saved into an index.  
+    \item A collection of retrieval methods to query the dataset.  
+    \item A learning algorithm.  
+\end{itemize}
+ 
+The raw data is pre-processed to form document term frequency vectors (SEE FIG COMPONENT DIAGRAM).
+The engine reads these vectors into a vector space model index to facilitate fast look-up speeds.
+ 
+Basic term: document associations are saved to a Boolean inverted index, while
+document:term-frequency vectors are stored to an arraylist ordered by document ID, which can be
+queried from the inverted index. This allows simple Boolean lookups to be performed on the inverted
+index, while more complicated retrieval algorithms such as bm25 make use of the
+document:term-frequency vectors.
 
+\subsection{Retrieval Methods Implemented}
+The retrieval process first selects all documents that contain any words from the query, then 
+these documents are ranked using the different models outlined below. The scores from each model are then weighted and combined to give an overall ranking.
+ 
+Boolean \textbf{AND:} 
+This model simply assigns a score of 1 if all query terms appear in the document, and 0 otherwise.
+ 
+\textbf{Cumulative term frequency:}  
+Simple cumulative count of the total number of times each query term appears in the document.
+ 
+\textbf{PageRank:} 
+Page rank is calculated using the power iteration method. The code can be found under the pageRank
+package with 2 classes, RageRank.java and PageRankStart.java. PageRankStart contains the main method which reads in the raw data 
+which consists of a .txt file containing a visited web page and an associated list of links. 23700 crawled pages with 65000 links in total.
+PageRank.java arranges this data into an adjacency list consisting of the webpage and its links. A list was chosen as the data 
+structure as a matrix would quickly run out of heap space.Multiple links between pages were excluded and a teleporting factor of 0.15 was included.
+The power iteration method took 18 iterations and approximately 5 minutes before the probabilities stabilised to within 0.000001.
+
+\begin{table}
+    \caption{\textbf{Top 10 pages by PageRank}}
+    \centering
+    \begin{tabular}{l r}
+        \hline 
+        www.ucl.ac.uk & 0.01769519400935117 \\
+        www.ucl.ac.uk/accessibility & 0.016912985296476814 \\
+        www.ucl.ac.uk/foi & 0.016634130768443414 \\
+        www.ucl.ac.uk/privacy & 0.01659894240968669 \\
+        www.ucl.ac.uk/contact-list & 0.016582308418126135 \\
+        www.ucl.ac.uk/disclaimer & 0.016566870436245235 \\
+        www.ucl.ac.uk/cookies & 0.01637414320466052 \\
+        www.ucl.ac.uk/staff & 0.01415962872136827 \\
+        www.ucl.ac.uk/prospective-students & 0.014085207831860392 \\
+        www.ucl.ac.uk/students & 0.013631117696195717 \\
+    \end{tabular}
+\end{table}
+
+As expected, \textit{ucl.ac.uk} was top. The rest were also high as they are linked from every other page. The full 
+list of results were output to another .txt file, (PageRankScores) for the search-engine to read.
+ 
+\textbf{TF-IDF:} 
+There are many variations of tf-idf, the version used in our search engine uses the formula given below:
+\begin{displaymath}
+    TFIDF = \sum\left(\frac{termFrequency}{docSize}\right) *
+    \log_{10}\left(\frac{collectionSize}{documentsContainingTerm}\right)
+\end{displaymath}
+
+\textbf{Cosine similarity:}
+Standard Cosine similarity was calculated between the query vector and the document vector using the
+formula\footnote{\url{https://en.wikipedia.org/wiki/Cosine\_similarity}}
+\begin{displaymath}
+    similarity = \cos(\theta) = \frac{A \cdot B}{\|A\|\|B\|}  =
+    \frac{\sum_{i=1}^{n}A_{i}B_{i}}{\sqrt{\sum_{i=1}^{n}A_{i}^2}\sqrt{\sum_{i=1}^{n}B_{i}^2}}
+\end{displaymath}
+
+\textbf{BM25:}
+The code for BM25\footnote{\url{https://en.wikipedia.org/wiki/Okapi\_BM25}} was only fully completed after the training and evaluation phase of the project 
+and after the learning algorithm had been completed, therefore it was not included in the system. 
+However it could be included for future testing without much extra work. By inspection without 
+evaluation, BM25 seems to provide good results, as would be expected.
+
+\chapter{Utilization \& Training}
+\section{Using the search engine}
+
+The search engine can be accessed via a simple GUI found in the package SearchEngineGui\footnote{see
+    fig 2.1}
+\begin{figure} 
+    \begin{center} 
+        \includegraphics[scale=0.3]{media/image25.png} \end{center}
+    \caption{The SearchEngineGui} 
+\end{figure} 
+There is a text field for user queries and six buttons with the six different search methods described above. 
+Search results are loaded into the textbox upon submission of a query; clicking on links will load the webpage in the user’s default browser.
+In addition, there is a learning to rank search button toward the bottom right. This uses the weighted sum of all search methods 
+as discussed below. The learning to rank search procedure enables checkboxes down on the right hand side of the retrieval 
+results which are selected by the user at each training step to indicate relevant documents. After selecting the relevant documents 
+the user then presses the “learn” button which will recalculate all the model weights (discussed below) and proceed to the next learning step.
+
+\section{Learning Algorithm}
+The learning algorithm is based on a weighted sum of all retrieval methods. The method loosely follows the Adaboost 
+paradigm (en.wikipedia.org/wiki/AdaBoost) in which the better predictive retrieval method is progressively 
+weighted more highly after training relative to other models.
+
+Method: 
+\begin{enumerate}
+    \item The weights of all contributing models are initially set to 1.
+    \item 30 random novel UCL-related queries are used as a training corpus.
+    \item For each query the user is asked to select a checkbox on the GUI next to each relevant retrieved result (see FIG SCREENSHOT).
+    \item A loss function calculates which of the individual retrieval methods performed better or worse, then reassigns the weights as described below. The new weights are logged at each training set for analysis.
+\end{enumerate}
+
+Each atomic search method is initially given a weighting of 5. This value was chosen so that changes 
+would be large enough to be significant, but not too large as to cause erratic swings in the model values between learning steps.
+At each training step the retrieved list of documents and user relevance feedback are used to recalculate the atomic 
+search method weights. This is done for each search method individually by first re-ranking the top ten retrieved documents 
+as they would be ranked using that search method alone. Scores are awarded ranging from 10 to 1 for each relevant document 
+depending on where it would have been ranked (10 for 1st place, 9 for position 2 etc.). New weightings are then assigned by 
+multiplying the old weight by its score divided by the average score of all atomic functions:
+
+\begin{displaymath}
+    W_{i} = W_{i} * \frac{score_{w}}{score_{ave}}
+\end{displaymath}
 
 
 \end{document}

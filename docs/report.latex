@@ -99,7 +99,26 @@ incremental, at times tentative, development process, there were occasional inco
 between old (but still valid) data, and newer formats. The scripts were designed to ease these
 issues. There are also a number of scripts to do elementary data analysis, including a
 human-readable list of term frequencies, and a list of bigram frequencies. These were instrumental
-in decided what terms, dominate in the collection, could be safely added to a custom stoplist.
+in decided what terms, dominant in the collection, could be safely added to a custom stoplist.
+
+\begin{figure} 
+    \begin{center} 
+        \includegraphics[scale=0.4]{media/bigram_no_stopwords.png} 
+    \end{center}
+    \caption{The 50 most common bigrams clearly demonstrates the need for a comprehensive and
+        domain-specific stoplist.} 
+\end{figure} 
+
+More interesting and useful bigrams occur once the vocabulary has been pruned of "useless" words. It
+is interesting to note that, at least for the first fifty bigrams, a frequency relationship that might
+be described as loosely obeying \textit{Zipf's Law}\footnote{"Law" is perhaps an overstatement of the
+    generality of this statement: "observation" might be a more accurate description.} can be observed. This law states that the
+frequency of a word is inversely proportional to its ranking according to the following formula:
+
+\begin{displaymath}
+    P(r) \approx \frac{1}{r \ln(1.78 R)}
+\end{displaymath}
+where R is the number of different terms.
 
 \subsection{The Search Engine} 
 The search engine comprises of three main parts: 
@@ -109,7 +128,7 @@ The search engine comprises of three main parts:
     \item A learning algorithm.  
 \end{itemize}
  
-The raw data is pre-processed to form document term frequency vectors (SEE FIG COMPONENT DIAGRAM).
+The raw data is pre-processed to form document term frequency vectors\footnote{see fig1.1}.
 The engine reads these vectors into a vector space model index to facilitate fast look-up speeds.
  
 Basic term: document associations are saved to a Boolean inverted index, while
@@ -122,7 +141,7 @@ document:term-frequency vectors.
 The retrieval process first selects all documents that contain any words from the query, then 
 these documents are ranked using the different models outlined below. The scores from each model are then weighted and combined to give an overall ranking.
  
-Boolean \textbf{AND:} 
+\textbf{Boolean AND:} 
 This model simply assigns a score of 1 if all query terms appear in the document, and 0 otherwise.
  
 \textbf{Cumulative term frequency:}  
@@ -358,6 +377,11 @@ domain. Furthermore it has been anecdotally noted that while search results are 
 Therefore we can conclude that our post-training search engine model performs well in comparison to the existing UCL search and we look forward to implementing it on the site in the coming months.
 
 \section{Future work}
+From a software engineering perspective, at present many parts of the project sit, at best, uneasily
+together. Manual intervention is still required at many stages of the process to convert data from
+one format to another. This is obviously extremely undesirable, and requires further effort to fully
+automate the process\footnote{Unit testing is also sorely lacking for many parts of the codebase.}
+
 Anecdotally, we noticed that the results from our search engine did not have the same level of diversity as the google 
 domain search. To better maximise coverage and minimise redundancy we could introduce diversification models; for example, 
 maximal marginal relevance
@@ -373,7 +397,11 @@ Late work analyzing bigrams present in the document collection also suggested a 
 approaches that might be incorporated into a more sophisticated search engine, including the
 statistical analysis of collocations for possible usage in information
 retrieval.\footnote{Foundations of Statistical Natural Language Processing, C. Manning and H.
-    Schütze, MIT Press, 1999}
+    Schütze, MIT Press, 1999} Certainly a more complete understanding of the dataset would lead to a
+more tailored stoplist and possible space savings for the postings list\footnote{Understanding the
+    collocations present in the collection for example might result in a \textit{Shannon's Game}
+    type situtation, where strongly collocated groupings could be partially stored due to the high
+    probability of mutual occurence}.
 
 \begin{thebibliography}{1}
 

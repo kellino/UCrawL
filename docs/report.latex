@@ -28,7 +28,7 @@
 
 \tableofcontents
 
-\begin{abstract} The purpose of this project is to build a search engine that indexes and
+\begin{abstract} The purpose of this project was to build a search engine that indexes and
 retrieves content from the \textit{ucl.ac.uk} domain. It was decided to restrict the content to text
 rather than images/video, and to restrict document crawling to a sufficiently large sample of the
 domain, rather than attempt to crawl all > 1 million
@@ -62,7 +62,7 @@ indexer were built in Python, as detailed below.
 \subsection{Crawling and Indexing} The initial scope of the project\footnote{Project 1 was selected
     from the coursework document, which called for the creation of a search engine for the UCL
     website, \url{http://www.ucl.ac.uk}} suggested the use of custom elements for the search engine.
-Rather than using an existing framework, such as \textbf{scrapy}\footnote{\url{scrapy.org}} the
+Rather than using an existing framework, such as \textbf{scrapy}\footnote{\url{scrapy.org}}, the
 group decided to write a crawler without such aides, as a means to better understand the
 architecture and behaviour of a web crawler.
 
@@ -99,26 +99,7 @@ incremental, at times tentative, development process, there were occasional inco
 between old (but still valid) data, and newer formats. The scripts were designed to ease these
 issues. There are also a number of scripts to do elementary data analysis, including a
 human-readable list of term frequencies, and a list of bigram frequencies. These were instrumental
-in decided what terms, dominant in the collection, could be safely added to a custom stoplist.
-
-\begin{figure} 
-    \begin{center} 
-        \includegraphics[scale=0.4]{media/bigram_no_stopwords.png} 
-    \end{center}
-    \caption{The 50 most common bigrams clearly demonstrates the need for a comprehensive and
-        domain-specific stoplist.} 
-\end{figure} 
-
-More interesting and useful bigrams occur once the vocabulary has been pruned of "useless" words. It
-is interesting to note that, at least for the first fifty bigrams, a frequency relationship that might
-be described as loosely obeying \textit{Zipf's Law}\footnote{"Law" is perhaps an overstatement of the
-    generality of this statement: "observation" might be a more accurate description.} can be observed. This law states that the
-frequency of a word is inversely proportional to its ranking according to the following formula:
-
-\begin{displaymath}
-    P(r) \approx \frac{1}{r \ln(1.78 R)}
-\end{displaymath}
-where R is the number of different terms.
+in deciding which terms, overly dominant in the collection, could be safely added to a custom stoplist.
 
 \subsection{The Search Engine} 
 The search engine comprises of three main parts: 
@@ -131,7 +112,7 @@ The search engine comprises of three main parts:
 The raw data is pre-processed to form document term frequency vectors\footnote{see fig1.1}.
 The engine reads these vectors into a vector space model index to facilitate fast look-up speeds.
  
-Basic term: document associations are saved to a Boolean inverted index, while
+Basic term:document associations are saved to a Boolean inverted index, while
 document:term-frequency vectors are stored to an arraylist ordered by document ID, which can be
 queried from the inverted index. This allows simple Boolean lookups to be performed on the inverted
 index, while more complicated retrieval algorithms such as bm25 make use of the
@@ -149,10 +130,10 @@ Simple cumulative count of the total number of times each query term appears in 
  
 \textbf{PageRank:} 
 Page rank is calculated using the power iteration method. The code can be found under the pageRank
-package with 2 classes, RageRank.java and PageRankStart.java. PageRankStart contains the main method which reads in the raw data 
-which consists of a .txt file containing a visited web page and an associated list of links. 23700 crawled pages with 65000 links in total.
+package with 2 classes, PageRank.java and PageRankStart.java. PageRankStart contains the main method which reads in the raw data 
+which consists of a \textit{txt} file containing a visited web page and an associated list of links. 23700 crawled pages with 65000 links in total.
 PageRank.java arranges this data into an adjacency list consisting of the webpage and its links. A list was chosen as the data 
-structure as a matrix would quickly run out of heap space.Multiple links between pages were excluded and a teleporting factor of 0.15 was included.
+structure as a matrix would quickly run out of heap space. Multiple links between pages were excluded and a teleporting factor of 0.15 was included.
 The power iteration method took 18 iterations and approximately 5 minutes before the probabilities stabilised to within 0.000001.
 
 \begin{table}
@@ -176,7 +157,7 @@ The power iteration method took 18 iterations and approximately 5 minutes before
 As expected, \textit{ucl.ac.uk} was top. The rest were also high as they are linked from every other page. The full 
 list of results were output to another .txt file, (PageRankScores) for the search-engine to read.
  
-\textbf{TF-IDF:} 
+\textbf{tf-idf:} 
 There are many variations of tf-idf, the version used in our search engine uses the formula given below:
 \begin{displaymath}
     TFIDF = \sum\left(\frac{termFrequency}{docSize}\right) *
@@ -200,7 +181,7 @@ evaluation, BM25 seems to provide good results, as would be expected.
 \chapter{Utilization \& Training}
 \section{Using the search engine}
 
-The search engine can be accessed via a simple GUI found in the package SearchEngineGui\footnote{see
+The search engine can be accessed via a simple GUI found in the package SearchEngineGui.\footnote{see
     fig 2.1}
 \begin{figure} 
     \begin{center} 
@@ -223,7 +204,8 @@ Method:
 \begin{enumerate}
     \item The weights of all contributing models are initially set to 1.
     \item 30 random novel UCL-related queries are used as a training corpus.
-    \item For each query the user is asked to select a checkbox on the GUI next to each relevant retrieved result (see FIG SCREENSHOT).
+    \item For each query the user is asked to select a checkbox on the GUI next to each relevant
+        retrieved result (see fig 2.1).
     \item A loss function calculates which of the individual retrieval methods performed better or worse, then reassigns the weights as described below. The new weights are logged at each training set for analysis.
 \end{enumerate}
 
@@ -288,7 +270,7 @@ and mean average NDCG at K scores for each search engine. Given that we did not 
 of the document corpus we decided to normalise the DCG scores using maximum ideal DCG scores set to 4 for each query topic. 
 This artifact may have caused the slight negative gradient of the mean NDCG@K lines above, however this should not be significant 
 for comparison purposes. Another consideration that is relevant to comparisons is that the UCL and google domain specific search use the full corpus 
-of >1 million urls, while our search engine uses a subset of around 21,000 pages. Anecdotal comparison of the search results from 
+of > 1 million urls, while our search engine uses a subset of around 21,000 pages. Anecdotal comparison of the search results from 
 google and our post-training model indicates that our results have less diversity. As such the relevance scores could be slightly 
 inflated, given that multiple relevant yet very similar documents are retrieved. To improve this in the future we could introduce a 
 diversity discounting model such as Portfolio or MMR. 
@@ -304,7 +286,7 @@ Figure 3.4 displays the flow of the average precision as the number of retrieved
 It shows that both the Google system and post-training system overall retrieve the highest proportion of relevant documents 
 throughout, with the top result for both always being relevant. It can also be seen that the pre-training system roughly retrieves 
 a relevant document only half of the time, with the UCL search engine being relevant at around 75\% of the time. 
-The TF-IDF system for the first three documents retrieves less relevant documents than our post-training system 
+The tf-idf system for the first three documents retrieves less relevant documents than our post-training system 
 but after that, the two retrieve a very similar proportion of  documents.
 
 \chapter{Benchmarking Performance}
@@ -332,16 +314,17 @@ p-value. If this p-value is less than the significance level, chosen here to be 
 The first test detailed below, tested whether the post-training system is significantly better than
 the pre-training system at a 5\% level:
 
-Null hypothesis \(H_{0} \): The post-training system is no better than the pre-training system.
-Alternative hypothesis \(H_{1}\): The post-training system is better than the pre-training system.
+\noindent\textbf{Null hypothesis \(H_{0} \)}: The post-training system is no better than the pre-training system. \\
+\textbf{Alternative hypothesis \(H_{1}\)}: The post-training system is better than the pre-training
+system. \\
 
 Performing the calculations as described above, we obtain a t-value of 5.209611023 and therefore a p-value of 0.000278 
 which is <0.05, therefore the null hypothesis is rejected and we conclude that the post-training system performs better than the pre-training system.
 
 The second test we performed was whether the post-training system is significantly better than the UCL search:
 
-Null hypothesis \(H_{0}\): The post-training system is no better than the UCL search.
-Alternative hypothesis \(H_{1}\): The post-training system is better than the UCL search.
+\noindent\textbf{Null hypothesis \(H_{0}\)}: The post-training system is no better than the UCL search. \\
+\textbf{Alternative hypothesis \(H_{1}\)}: The post-training system is better than the UCL search. \\
 
 We find a t-value of 2.359132971, and obtain the corresponding p-value of 0.021332 which is <0.05, 
 hence the result is significant at the 5\% level. Therefore we reject the null hypothesis 
@@ -349,19 +332,21 @@ and conclude that the post-training system performs better than the UCL search e
 
 The third test we performed was whether the post-training system is significantly better than the Google search:
 
-Null hypothesis \(H_{0}\): The post-training system is no better than the Google search.
-Alternative hypothesis \(H_{1}\): The post-training system is better than the Google search.
+\noindent\textbf{Null hypothesis \(H_{0}\)}: The post-training system is no better than the Google search. \\
+\textbf{Alternative hypothesis \(H_{1}\)}: The post-training system is better than the Google
+search. \\
  
 For a test at the 5\% level, in order for the result to be significant, the t value needs 
 to be larger than 1.833. But since the t-value obtained is less than this, namely -2.096, we accept the null hypothesis that the post-training system is no better than google.
 
-The final test performed was to establish whether the post-training system is significantly better than the TF-IDF system.
+The final test performed was to establish whether the post-training system is significantly better than the tf-idf system.
 
-Null hypothesis \(H_{0}\): The post-training system is no better than the TF-IDF system.
-Alternative hypothesis \(H_{1}\): The post-training system is better than the TF-IDF system.
+\noindent\textbf{Null hypothesis \(H_{0}\)}: The post-training system is no better than the tf-idf system. \\
+\textbf{Alternative hypothesis \(H_{1}\)}: The post-training system is better than the tf-idf
+system. \\
 
 The t-value obtained is 1.219138 and the corresponding p-value is 0.126897, which is <0.05 hence the result 
-of the test is not significant and we accept the null hypothesis that the post-training system is no better than the TF-IDF system.
+of the test is not significant and we accept the null hypothesis that the post-training system is no better than the tf-idf system.
 
 \chapter{Conclusion}
 In addressing the problem of searching and retrieving results from the ucl.ac.uk domain we built a custom web 
@@ -370,8 +355,8 @@ a learning-to-rank system and trained it with real user relevance feedback. To a
 ensured that the training query topics were different to the test query topics. 
 From the benchmarking tests conducted above it can be concluded that our post-training system retrieves 
 more relevant results than the UCL search engine at least across the 20 test query topics. However the results 
-are not significantly better than google or the TF-IDF search model in isolation. A caveat consider in these analyses 
-is that the document corpus in our search engine was only a 21000 subset or the >1 million urls in
+are not significantly better than google or the tf-idf search model in isolation. A caveat consider in these analyses 
+is that the document corpus in our search engine was only a 21000 subset or the > 1 million urls in
 the \textit{ucl.ac.uk} 
 domain. Furthermore it has been anecdotally noted that while search results are highly relevant in our post-training model, they may lack diversity.
 Therefore we can conclude that our post-training search engine model performs well in comparison to the existing UCL search and we look forward to implementing it on the site in the coming months.
@@ -402,6 +387,24 @@ more tailored stoplist and possible space savings for the postings list\footnote
     collocations present in the collection for example might result in a \textit{Shannon's Game}
     type situtation, where strongly collocated groupings could be partially stored due to the high
     probability of mutual occurence}.
+\begin{figure} 
+    \begin{center} 
+        \includegraphics[scale=0.4]{media/bigram_no_stopwords.png} 
+    \end{center}
+    \caption{The 50 most common bigrams clearly demonstrates the need for a comprehensive and
+        domain-specific stoplist.} 
+\end{figure} 
+
+More interesting and useful bigrams occur once the vocabulary has been pruned of "useless" words. It
+is interesting to note that, at least for the first fifty bigrams, a frequency relationship that might
+be described as loosely obeying \textit{Zipf's Law}\footnote{"Law" is perhaps an overstatement of the
+    generality of this statement: "observation" might be a more accurate description.} can be observed. This law states that the
+frequency of a word is inversely proportional to its ranking according to the following formula:
+
+\begin{displaymath}
+    P(r) \approx \frac{1}{r \ln(1.78 R)}
+\end{displaymath}
+where R is the number of different terms.
 
 \begin{thebibliography}{1}
 

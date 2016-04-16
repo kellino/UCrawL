@@ -31,8 +31,8 @@
 \begin{abstract} The purpose of this project was to build a search engine that indexes and
 retrieves content from the \textit{ucl.ac.uk} domain. It was decided to restrict the content to text
 rather than images/video, and to restrict document crawling to a sufficiently large sample of the
-domain, rather than attempt to crawl all > 1 million
-urls\footnote{\url{https://www.funnelback.com/case-studies/university-college-london}} To evaluate
+domain, rather than attempt to crawl all \(>\) 1 million
+urls\footnote{\url{https://www.funnelback.com/case-studies/university-college-london}}. To evaluate
 the results, we were required to generate a suitable set of test query topics and relevance
 judgements and then devise a methodology for benchmarking the results of our search engine. In the
 sections that follow we outline our approach to these problems using a learning-to-rank methodology
@@ -181,8 +181,8 @@ evaluation, BM25 seems to provide good results, as would be expected.
 \chapter{Utilization \& Training}
 \section{Using the search engine}
 
-The search engine can be accessed via a simple GUI found in the package SearchEngineGui.\footnote{see
-    fig 2.1}
+The search engine can be accessed via a simple GUI found in the package SearchEngineGui, see fig
+2.1.
 \begin{figure} 
     \begin{center} 
         \includegraphics[scale=0.3]{media/image25.png} \end{center}
@@ -262,6 +262,11 @@ can clearly be seen that the NDCG scores greatly increased due to the training a
 Although, it did not have the same effect for all queries, as it can be seen for query 5 and 18 that the pre-training system outperforms the post-training system.
 
 \section{Comparison of mean average NDCG at K}
+\begin{figure} 
+    \begin{center} 
+        \includegraphics[scale=0.5]{media/image14.png} \end{center}
+    \caption{average ndcg@k pre and post-training} 
+\end{figure} 
 To collect the results, 20 predefined query topics (see query\_topics.txt) were submitted to each search engine model. 
 The top ten documents retrieved by each search engine were recorded and manual relevance judgements were made. These relevance 
 judgements and ranking scores were aggregated into a qrels and ranking file respectively for each search engine. These 
@@ -270,7 +275,7 @@ and mean average NDCG at K scores for each search engine. Given that we did not 
 of the document corpus we decided to normalise the DCG scores using maximum ideal DCG scores set to 4 for each query topic. 
 This artifact may have caused the slight negative gradient of the mean NDCG@K lines above, however this should not be significant 
 for comparison purposes. Another consideration that is relevant to comparisons is that the UCL and google domain specific search use the full corpus 
-of > 1 million urls, while our search engine uses a subset of around 21,000 pages. Anecdotal comparison of the search results from 
+of \(>\) 1 million urls, while our search engine uses a subset of around 21,000 pages. Anecdotal comparison of the search results from 
 google and our post-training model indicates that our results have less diversity. As such the relevance scores could be slightly 
 inflated, given that multiple relevant yet very similar documents are retrieved. To improve this in the future we could introduce a 
 diversity discounting model such as Portfolio or MMR. 
@@ -282,7 +287,7 @@ diversity discounting model such as Portfolio or MMR.
 \end{figure} 
 Another evaluation measure that we used, was to work out the average precision at each k from 0 to 10 for each IR system. 
 Precision displays the percentage of relevant documents out of the retrieved documents at each step. 
-Figure 3.4 displays the flow of the average precision as the number of retrieved links increases.
+Figure 3.5 displays the flow of the average precision as the number of retrieved links increases.
 It shows that both the Google system and post-training system overall retrieve the highest proportion of relevant documents 
 throughout, with the top result for both always being relevant. It can also be seen that the pre-training system roughly retrieves 
 a relevant document only half of the time, with the UCL search engine being relevant at around 75\% of the time. 
@@ -319,14 +324,14 @@ the pre-training system at a 5\% level:
 system. \\
 
 Performing the calculations as described above, we obtain a t-value of 5.209611023 and therefore a p-value of 0.000278 
-which is <0.05, therefore the null hypothesis is rejected and we conclude that the post-training system performs better than the pre-training system.
+which is \(<\)0.05, therefore the null hypothesis is rejected and we conclude that the post-training system performs better than the pre-training system.
 
 The second test we performed was whether the post-training system is significantly better than the UCL search:
 
 \noindent\textbf{Null hypothesis \(H_{0}\)}: The post-training system is no better than the UCL search. \\
 \textbf{Alternative hypothesis \(H_{1}\)}: The post-training system is better than the UCL search. \\
 
-We find a t-value of 2.359132971, and obtain the corresponding p-value of 0.021332 which is <0.05, 
+We find a t-value of 2.359132971, and obtain the corresponding p-value of 0.021332 which is \(<\)0.05, 
 hence the result is significant at the 5\% level. Therefore we reject the null hypothesis 
 and conclude that the post-training system performs better than the UCL search engine.
 
@@ -345,7 +350,7 @@ The final test performed was to establish whether the post-training system is si
 \textbf{Alternative hypothesis \(H_{1}\)}: The post-training system is better than the tf-idf
 system. \\
 
-The t-value obtained is 1.219138 and the corresponding p-value is 0.126897, which is <0.05 hence the result 
+The t-value obtained is 1.219138 and the corresponding p-value is 0.126897, which is \(<\)0.05 hence the result 
 of the test is not significant and we accept the null hypothesis that the post-training system is no better than the tf-idf system.
 
 \chapter{Conclusion}
@@ -356,7 +361,7 @@ ensured that the training query topics were different to the test query topics.
 From the benchmarking tests conducted above it can be concluded that our post-training system retrieves 
 more relevant results than the UCL search engine at least across the 20 test query topics. However the results 
 are not significantly better than google or the tf-idf search model in isolation. A caveat consider in these analyses 
-is that the document corpus in our search engine was only a 21000 subset or the > 1 million urls in
+is that the document corpus in our search engine was only a 21000 subset or the \(>\) 1 million urls in
 the \textit{ucl.ac.uk} 
 domain. Furthermore it has been anecdotally noted that while search results are highly relevant in our post-training model, they may lack diversity.
 Therefore we can conclude that our post-training search engine model performs well in comparison to the existing UCL search and we look forward to implementing it on the site in the coming months.
@@ -391,7 +396,7 @@ more tailored stoplist and possible space savings for the postings list\footnote
     \begin{center} 
         \includegraphics[scale=0.4]{media/bigram_no_stopwords.png} 
     \end{center}
-    \caption{The 50 most common bigrams clearly demonstrates the need for a comprehensive and
+    \caption{A plot of the 50 most common bigrams clearly demonstrates the need for a comprehensive and
         domain-specific stoplist.} 
 \end{figure} 
 
@@ -404,7 +409,8 @@ frequency of a word is inversely proportional to its ranking according to the fo
 \begin{displaymath}
     P(r) \approx \frac{1}{r \ln(1.78 R)}
 \end{displaymath}
-where R is the number of different terms.
+where R is the number of different terms. Further research would be required to see if this might
+lead to useful applications in the realm of information retrieval.
 
 \begin{thebibliography}{1}
 
